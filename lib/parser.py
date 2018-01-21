@@ -1,55 +1,3 @@
-# from bs4 import BeautifulSoup
-# import logging
-# from lib.job import Job
-#
-#
-# def _get_job(node):
-#     """
-#     Returns a Job object given the html node representing the record
-#     """
-#     job_title = node.find('a', {'class': 'turnstileLink'}).text
-#     job_title = ' '.join(job_title.split())
-#
-#     url = node.find('a', {'class': 'turnstileLink'})['href']
-#
-#     company = node.find('span', {'class': 'company'}).text
-#     company = ' '.join(company.split())
-#
-#     location = node.find('span', {'class': 'location'}).text
-#     location = ' '.join(location.split())
-#
-#     date = node.find('span', {'class': 'date'}).text
-#     date = ' '.join(date.split())
-#
-#     return Job(job_title, company, location, date, url)
-#
-#
-# def parse_non_sponsored_jobs(html):
-#     """ Return a list of Job object ecluding sponsored jobs """
-#     soup = BeautifulSoup(html, 'html.parser')
-#     soup.prettify()
-#
-#     non_sponsored_result = []
-#     for r in soup.find_all('div', {'class': ['row', 'result']}):
-#         if r.find('span', {'class': 'sponsoredGray'}) is None:
-#             non_sponsored_result.append(r)
-#
-#     jobs = []
-#     keywords = set(['software','developer','engineer','engineering'])
-#     for result in non_sponsored_result:
-#         try:
-#             job = _get_job(result)
-#         except Exception as e:
-#             logging.exception(e)
-#             continue
-#
-#         found = False
-#         for keyword in keywords:
-#             if not found and 'intern' in job.title.lower() and keyword in job.title.lower():
-#                 jobs.append(job)
-#                 found = True
-#     return jobs
-
 import logging
 from datetime import datetime, timedelta
 
@@ -57,9 +5,12 @@ from bs4 import BeautifulSoup
 
 from lib.job import Job
 
-
 JOB_TITLE_KEYWORDS = [
     'software','developer','engineer','engineering','technical', 'technology'
+]
+
+JOB_TITLE_EXCLUDE_KEYWORDS = [
+    'civil', 'electrical', 'mechanical'
 ]
 
 
@@ -122,15 +73,30 @@ def parse_non_sponsored_jobs(html):
             logging.exception(e)
             continue
 
+        # ignore job if...
         if job.date == '30+ days ago':
             continue
 
+        # include only if it has keywords...
         found = False
         for keyword in keywords:
             if not found and 'intern' in job.title.lower() and keyword in job.title.lower():
                 jobs.append(job)
                 found = True
-    return jobs
+
+    # ignore certain keywords
+    cs_jobs = []
+    non_cs_jobs = []
+    for job in jobs:
+        # If we found excluded keyword put it in a different list
+        for exclude_keyword in JOB_TITLE_EXCLUDE_KEYWORDS:
+            if exclude_keyword in job.title.lower():
+                non_cs_jobs.append(job)
+                break
+
+        cs_jobs.append(job)     # didn't find exlucded keywords
+
+    return cs_jobs
 
 if __name__ == '__main__':
     print(_convert_to_date('today'))

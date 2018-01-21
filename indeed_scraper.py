@@ -4,7 +4,6 @@ import random
 import os
 from datetime import datetime, timedelta
 
-
 from lib.job import Job
 import lib.downloader
 import lib.parser
@@ -40,8 +39,7 @@ def print_jobs(jobs):
 
 # Parse the soup
 if __name__ == '__main__':
-    jobs = []
-    NUM_JOBS_CRAWLED = 400      # 10 non-sponsored postings per page
+    NUM_JOBS_CRAWLED = 30           # 10 non-sponsored postings per page
     for k, i in enumerate(range(0,NUM_JOBS_CRAWLED, 10)):
         url = 'https://www.indeed.com/jobs?q=software+intern&l=United+States&sort=date&start=' + str(i)
         # url = 'https://www.indeed.com/jobs?q=computer+science+intern&l=United+States&sort=date&start=' + str(i)
