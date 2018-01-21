@@ -27,6 +27,7 @@ class DecimalEncoder(json.JSONEncoder):
                 return int(o)
         return super(DecimalEncoder, self).default(o)
 
+
 def print_jobs(jobs):
     jobs = sorted(jobs, key=lambda job : job.company.lower())
     jobs = sorted(jobs, key=lambda job : job.date.lower())
@@ -73,7 +74,7 @@ if __name__ == '__main__':
     print_jobs(jobs)
 
 
-    # Save job to db
+    # Save job to db TODO: put these away in a db layer
     dynamodb = boto3.resource('dynamodb', region_name='us-west-2', endpoint_url="https://dynamodb.us-west-2.amazonaws.com")
     table = dynamodb.Table('JobInternships')
     exist_count = 0
