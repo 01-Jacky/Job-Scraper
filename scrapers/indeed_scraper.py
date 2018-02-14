@@ -1,20 +1,16 @@
-import sys
-sys.path.append('..')   # Add parent folder path to sys.path
-
 import time
 import pickle
 import random
 import os
 from datetime import datetime, timedelta
 
-
-from lib.job import Job
-import lib.downloader
-import lib.parser
-import lib.helpers
+from tools.job import Job
+import tools.downloader
+import tools.parser
+import tools.helpers
 
 import boto3
-import json
+import json         # for working with boto 3
 import decimal
 from botocore.exceptions import ClientError
 
@@ -55,8 +51,8 @@ if __name__ == '__main__':
         # url = 'https://www.indeed.com/jobs?q=computer+science+intern&l=San+Francisco%2C+CA&radius=100&sort=date&start=' + str(i)
 
         print('Scraping page ' + str(k + 1))
-        html = lib.downloader.get_html(url)
-        cs_jobs, non_cs_jobs = lib.parser.parse_non_sponsored_jobs(html)
+        html = tools.downloader.get_html(url)
+        cs_jobs, non_cs_jobs = tools.parser.parse_non_sponsored_jobs(html)
         cumulative_cs_jobs.extend(cs_jobs)
         cumulative_non_cs_jobs.extend(non_cs_jobs)
         time.sleep(random.uniform(0.5,1.5))
@@ -68,8 +64,8 @@ if __name__ == '__main__':
         # url = 'https://www.indeed.com/jobs?q=computer+science+intern&l=San+Francisco%2C+CA&radius=100&sort=date&start=' + str(i)
 
         print('Scraping page ' + str(k + 1))
-        html = lib.downloader.get_html(url)
-        cs_jobs, non_cs_jobs = lib.parser.parse_non_sponsored_jobs(html)
+        html = tools.downloader.get_html(url)
+        cs_jobs, non_cs_jobs = tools.parser.parse_non_sponsored_jobs(html)
         cumulative_cs_jobs.extend(cs_jobs)
         cumulative_non_cs_jobs.extend(non_cs_jobs)
         time.sleep(random.uniform(0.5,1.5))

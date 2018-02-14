@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 
 from bs4 import BeautifulSoup
 
-from lib.job import Job
+from tools.job import Job
 
 JOB_TITLE_KEYWORDS = [
     'software','developer','engineer','engineering','technical', 'technology'
