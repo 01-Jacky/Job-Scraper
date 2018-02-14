@@ -1,15 +1,18 @@
+import sys
+sys.path.append('..')   # Add parent folder path to sys.path
+
 import time
 import pickle
 import random
 import os
 from datetime import datetime, timedelta
 
+
 from lib.job import Job
 import lib.downloader
 import lib.parser
 import lib.helpers
 
-# boto3
 import boto3
 import json
 import decimal
@@ -40,7 +43,10 @@ def print_jobs(jobs):
 
 # Parse the soup
 if __name__ == '__main__':
-    NUM_JOBS_CRAWLED = 30           # 10 non-sponsored postings per page
+    NUM_JOBS_CRAWLED = 10           # 10 non-sponsored postings per page
+    cumulative_cs_jobs = []
+    cumulative_non_cs_jobs = []
+
     for k, i in enumerate(range(0,NUM_JOBS_CRAWLED, 10)):
         url = 'https://www.indeed.com/jobs?q=software+intern&l=United+States&sort=date&start=' + str(i)
         # url = 'https://www.indeed.com/jobs?q=computer+science+intern&l=United+States&sort=date&start=' + str(i)
@@ -50,11 +56,12 @@ if __name__ == '__main__':
 
         print('Scraping page ' + str(k + 1))
         html = lib.downloader.get_html(url)
-        jobs.extend(lib.parser.parse_non_sponsored_jobs(html))
+        cs_jobs, non_cs_jobs = lib.parser.parse_non_sponsored_jobs(html)
+        cumulative_cs_jobs.extend(cs_jobs)
+        cumulative_non_cs_jobs.extend(non_cs_jobs)
         time.sleep(random.uniform(0.5,1.5))
 
     for k, i in enumerate(range(0,NUM_JOBS_CRAWLED, 10)):
-        # url = 'https://www.indeed.com/jobs?q=software+intern&l=United+States&sort=date&start=' + str(i)
         url = 'https://www.indeed.com/jobs?q=computer+science+intern&l=United+States&sort=date&start=' + str(i)
         # url = 'https://www.indeed.com/jobs?q=software+intern&l=United+States&start=' + str(i)
         # url = 'https://www.indeed.com/jobs?q=computer+science+intern&l=United+States&start=' + str(i)
@@ -62,7 +69,9 @@ if __name__ == '__main__':
 
         print('Scraping page ' + str(k + 1))
         html = lib.downloader.get_html(url)
-        jobs.extend(lib.parser.parse_non_sponsored_jobs(html))
+        cs_jobs, non_cs_jobs = lib.parser.parse_non_sponsored_jobs(html)
+        cumulative_cs_jobs.extend(cs_jobs)
+        cumulative_non_cs_jobs.extend(non_cs_jobs)
         time.sleep(random.uniform(0.5,1.5))
 
     # Save jobs to disc
@@ -70,8 +79,8 @@ if __name__ == '__main__':
         os.makedirs('data_dump')
 
     picke_name = "data_dump/jobs_{}.p".format(datetime.today().strftime('%Y-%m-%d_%H%M'))
-    pickle.dump(jobs, open(picke_name, "wb" ))
-    print_jobs(jobs)
+    # pickle.dump(cumulative_cs_jobs, open(picke_name, "wb" ))
+    # print_jobs(cumulative_cs_jobs)
 
 
     # Save job to db TODO: put these away in a db layer
@@ -81,7 +90,7 @@ if __name__ == '__main__':
     insert_count = 0
     inserted_jobs = []
 
-    for job in jobs:
+    for job in cumulative_cs_jobs:
         jobid = job.company.replace(' ', '') + '_' + job.title.replace(' ','')
 
         try:
@@ -131,8 +140,13 @@ if __name__ == '__main__':
                 inserted_jobs.append(job) # Keep track of what was inserted
             # print(json.dumps(response, indent=4, cls=DecimalEncoder))
 
-    for job in sorted(inserted_jobs, key= lambda job: job.date):
-        print(job)
+    # print to console for summary
+
+    print('filtered out non cs jobs...')
+    print_jobs(cumulative_non_cs_jobs)
+
+    print('\nJob inserted to db...')
+    print_jobs(inserted_jobs)
 
     print("dups: {}".format(exist_count))
     print("inserted: {}".format(insert_count))

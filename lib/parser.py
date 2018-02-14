@@ -10,7 +10,7 @@ JOB_TITLE_KEYWORDS = [
 ]
 
 JOB_TITLE_EXCLUDE_KEYWORDS = [
-    'civil', 'electrical', 'mechanical'
+    'civil', 'electrical', 'mechanical', 'manufacturing'
 ]
 
 
@@ -66,6 +66,9 @@ def parse_non_sponsored_jobs(html):
 
     jobs = []
     keywords = set(JOB_TITLE_KEYWORDS)                  # Only return jobs with title containing one of these keywords
+
+    job_count_with_keyword = 0
+
     for result_div in divs_non_sponsored_result:
         try:
             job = _get_job(result_div)
@@ -82,21 +85,26 @@ def parse_non_sponsored_jobs(html):
         for keyword in keywords:
             if not found and 'intern' in job.title.lower() and keyword in job.title.lower():
                 jobs.append(job)
+                job_count_with_keyword += 1
                 found = True
 
     # ignore certain keywords
     cs_jobs = []
     non_cs_jobs = []
     for job in jobs:
+        is_cs_job = True
+
         # If we found excluded keyword put it in a different list
         for exclude_keyword in JOB_TITLE_EXCLUDE_KEYWORDS:
             if exclude_keyword in job.title.lower():
                 non_cs_jobs.append(job)
+                is_cs_job = False
                 break
 
-        cs_jobs.append(job)     # didn't find exlucded keywords
+        if is_cs_job:
+            cs_jobs.append(job)     # didn't find exlucded keywords
 
-    return cs_jobs
+    return cs_jobs, non_cs_jobs
 
 if __name__ == '__main__':
     print(_convert_to_date('today'))

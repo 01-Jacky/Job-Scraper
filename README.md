@@ -32,14 +32,11 @@ Boto3 by default looks for those key names.
 
 ### Running
 
-cd to root folder and run from shell
-
-    ```
-    set FLASK_APP=web_result.py
-    flask run
-    ```
+In scrapers folder, run the scraper you want. Currently only have indeed. Working on add LinkedIn and other boards soon.
     
-Alternatively schedule schedule CRON or deploy to AWS Lambda
+Best to schedule as CRON job.
+ 
+Working on AWS Lambda version as well.
 
 
 
