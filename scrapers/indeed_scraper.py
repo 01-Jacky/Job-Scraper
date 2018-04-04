@@ -1,7 +1,7 @@
 import time
-import pickle
 import random
 import os
+import urllib
 from datetime import datetime, timedelta
 
 from tools.job import Job
@@ -37,9 +37,9 @@ def print_jobs(jobs):
     print()
 
 
-# Parse the soup
-if __name__ == '__main__':
-    NUM_JOBS_CRAWLED = 10           # 10 non-sponsored postings per page
+
+def main():
+    NUM_JOBS_CRAWLED = 1000           # 10 non-sponsored postings per page
     cumulative_cs_jobs = []
     cumulative_non_cs_jobs = []
 
@@ -117,7 +117,7 @@ if __name__ == '__main__':
                 insert_count += 1
 
                 today_date_time = datetime.today()                     # Setup creation/expiration times
-                today_plus_30 = today_date_time + timedelta(days=30)
+                today_plus_ttl = today_date_time + timedelta(days=14)
 
                 response = table.put_item(
                     Item={
@@ -129,7 +129,7 @@ if __name__ == '__main__':
                         'url': job.url,
                         'source': 'Indeed',
                         'creation_epoch': int(today_date_time.timestamp()),
-                        'expiration_epoch': int(today_plus_30.timestamp())     # this allow us to setup automatic TTL in dynamodb
+                        'expiration_epoch': int(today_plus_ttl.timestamp())     # this allow us to setup automatic TTL in dynamodb
                     }
                 )
 
@@ -148,5 +148,8 @@ if __name__ == '__main__':
     print("inserted: {}".format(insert_count))
 
 
-
-
+if __name__ == '__main__':
+    try:
+        main()
+    except urllib.error.URLError as e:
+        print('Error downloading: ' + e.message)
