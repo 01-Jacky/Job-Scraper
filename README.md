@@ -38,6 +38,10 @@ Best to schedule as CRON job.
  
 Working on AWS Lambda version as well.
 
+### Policies
+
+A Time To Life (TTL) of ~30 day is used to automaticaly delete stale records from DynamoDB.
+
 
 
 
